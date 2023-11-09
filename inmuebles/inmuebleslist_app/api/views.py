@@ -7,6 +7,7 @@ from inmuebleslist_app.api.serializers import (
 from rest_framework.response import Response
 from rest_framework import mixins, generics
 from rest_framework.exceptions import ValidationError
+from inmuebleslist_app.api.permissions import AdminOrReadOnly, CometarioUserOrReadOnly
 
 # from rest_framework.decorators import api_view
 from rest_framework import status
@@ -48,6 +49,7 @@ class ComentarioList(generics.ListCreateAPIView):
 class ComentarioDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comentario.objects.all()
     serializer_class = ComentarioSerializer
+    permission_classes = [CometarioUserOrReadOnly]
 
 
 # class ComentarioList(
@@ -72,7 +74,8 @@ class ComentarioDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class EmpresaVS(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    ##permission_classes = [IsAuthenticated]
+    permission_classes = [AdminOrReadOnly]
     queryset = Empresa.objects.all()
     serializer_class = EmpresaSerializer
 
