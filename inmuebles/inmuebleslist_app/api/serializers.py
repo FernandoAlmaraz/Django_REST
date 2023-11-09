@@ -1,16 +1,18 @@
 from rest_framework import serializers
-from inmuebleslist_app.models import Inmueble, Empresa
+from inmuebleslist_app.models import Edificacion, Empresa
 
 
-class EmpresaSerializer(serializers.ModelSerializer):
+class EdificacionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Empresa
+        model = Edificacion
         fields = "__all__"
 
 
-class InmuebleSerializer(serializers.ModelSerializer):
+class EmpresaSerializer(serializers.ModelSerializer):
+    edificacionList = EdificacionSerializer(many=True, read_only=True)
+
     class Meta:
-        model = Inmueble
+        model = Empresa
         fields = "__all__"
 
         # fields = ["id", "pais"]
