@@ -3,6 +3,8 @@ from inmuebleslist_app.models import Edificacion, Empresa, Comentario
 
 
 class ComentarioSerializer(serializers.ModelSerializer):
+    comentario_user = serializers.StringRelatedField(read_only=True)
+
     class Meta:
         model = Comentario
         exclude = ["edificaion"]
@@ -17,7 +19,7 @@ class EdificacionSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class EmpresaSerializer(serializers.HyperlinkedModelSerializer):
+class EmpresaSerializer(serializers.ModelSerializer):
     edificacionList = EdificacionSerializer(many=True, read_only=True)
     # todos los valores
 

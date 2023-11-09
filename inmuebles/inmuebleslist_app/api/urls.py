@@ -1,4 +1,6 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
 
 # from inmuebleslist_app.api.views import , inmueble_detalle
 from inmuebleslist_app.api.views import (
@@ -9,12 +11,15 @@ from inmuebleslist_app.api.views import (
     ComentarioList,
     ComentarioDetail,
     ComentarioCreate,
+    EmpresaVS,
 )
 
 # urlpatterns = [
 #     path("list/", inmueble_list, name="inmueble-list"),
 #     path("select_id/<int:pk>", inmueble_detalle, name="inmueble-detalle"),
 # ]
+router = DefaultRouter()
+router.register("empresa", EmpresaVS, basename="empresa")
 urlpatterns = [
     ##edificacion
     path("edificacion/", EdificacionListAV.as_view(), name="inmueble-list"),
@@ -22,6 +27,7 @@ urlpatterns = [
         "edificacion/<int:pk>", EdificacionDetalleAV.as_view(), name="inmueble-detail"
     ),
     ##empresa
+    path("", include(router.urls)),
     path("empresa/", EmpresaListAv.as_view(), name="empresa-list"),
     path("empresa/<int:pk>", EmpresaDetalleAV.as_view(), name="empresa-detail"),
     ##comentarios
