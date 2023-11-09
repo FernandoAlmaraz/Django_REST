@@ -34,12 +34,22 @@ class ComentarioCreate(generics.CreateAPIView):
             raise ValidationError(
                 "El usuario ya añadio un comentario para este inmueble."
             )
+        if edificaion.number_calificacion == 0:
+            edificaion.avg_calificacion = serializer.validated_data["calificacion"]
+        else:
+            edificaion.avg_calificacion = (
+                serializer.validated_data["calificacion"] + edificaion.avg_calificacion
+            ) / 2
+        edificaion.number_calificacion = edificaion.number_calificacion + 1
+        edificaion.save()
+
         serializer.save(edificaion=edificaion, comentario_user=user)
 
 
 class ComentarioList(generics.ListCreateAPIView):
     # queryset = Comentario.objects.all()
     serializer_class = ComentarioSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         pk = self.kwargs["pk"]

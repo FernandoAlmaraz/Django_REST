@@ -19,6 +19,8 @@ class Edificacion(models.Model):
     descripcion = models.CharField(max_length=250)
     image = models.CharField(max_length=250)
     active = models.BooleanField(default=True)
+    avg_calificacion = models.FloatField(default=0)
+    number_calificacion = models.IntegerField(default=0)
     empresa = models.ForeignKey(
         Empresa, on_delete=models.CASCADE, related_name="edificacionList"
     )
