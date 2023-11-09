@@ -1,16 +1,67 @@
-from inmuebleslist_app.models import Edificacion, Empresa
-from inmuebleslist_app.api.serializers import EdificacionSerializer, EmpresaSerializer
+from inmuebleslist_app.models import Edificacion, Empresa, Comentario
+from inmuebleslist_app.api.serializers import (
+    EdificacionSerializer,
+    EmpresaSerializer,
+    ComentarioSerializer,
+)
 from rest_framework.response import Response
+from rest_framework import mixins, generics
 
 # from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.views import APIView
 
 
-class EmrpesaListAv(APIView):
+class ComentarioCreate(generics.CreateAPIView):
+    serializer_class = ComentarioSerializer
+
+    def perform_create(self, serializer):
+        pk = self.kwargs.get("pk")
+        edificaion = Edificacion.objects.get(pk=pk)
+        serializer.save(edificaion=edificaion)
+
+
+class ComentarioList(generics.ListCreateAPIView):
+    # queryset = Comentario.objects.all()
+    serializer_class = ComentarioSerializer
+
+    def get_queryset(self):
+        pk = self.kwargs["pk"]
+        return Comentario.objects.filter(edificaion=pk)
+
+
+class ComentarioDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comentario.objects.all()
+    serializer_class = ComentarioSerializer
+
+
+# class ComentarioList(
+#     mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView
+# ):
+#     queryset = Comentario.objects.all()
+#     serializer_class = ComentarioSerializer
+
+#     def get(self, request, *args, **kwargs):
+#         return self.list(request, *args, **kwargs)
+
+#     def post(self, request, *args, **kwargs):
+#         return self.create(request, *args, **kwargs)
+
+
+# class ComentarioDetail(mixins.RetrieveModelMixin, generics.GenericAPIView):
+#     queryset = Comentario.objects.all()
+#     serializer_class = ComentarioSerializer
+
+#     def get(self, request, *args, **kwargs):
+#         return self.retrieve(request, *args, **kwargs)
+
+
+class EmpresaListAv(APIView):
     def get(self, request):
         empresas = Empresa.objects.all()
-        serializer = EmpresaSerializer(empresas, many=True)
+        serializer = EmpresaSerializer(
+            empresas, many=True, context={"request": request}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -20,6 +71,43 @@ class EmrpesaListAv(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class EmpresaDetalleAV(APIView):
+    def get(self, request, pk):
+        try:
+            empresa = Empresa.objects.get(pk=pk)
+        except Empresa.DoesNotExist:
+            return Response(
+                {"error": "Empresa no encontrada"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = EmpresaSerializer(empresa, context={"request": request})
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        try:
+            empresa = Empresa.objects.get(pk=pk)
+        except Empresa.DoesNotExist:
+            return Response(
+                {"error": "Empresa no encontrada"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = EmpresaSerializer(
+            empresa, data=request.data, context={"request": request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            empresa = Empresa.objects.get(pk=pk)
+        except Empresa.DoesNotExist:
+            return Response(
+                {"Error": "la empresa no existe."}, status=status.HTTP_404_NOT_FOUND
+            )
+        empresa.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class EdificacionListAV(APIView):
@@ -45,7 +133,6 @@ class EdificacionDetalleAV(APIView):
             return Response(
                 {"Error": "El inmueble no existe."}, status=status.HTTP_404_NOT_FOUND
             )
-
         serializer = EdificacionSerializer(edificacion)
         return Response(serializer.data)
 

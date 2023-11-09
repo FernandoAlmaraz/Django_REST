@@ -1,16 +1,35 @@
 from rest_framework import serializers
-from inmuebleslist_app.models import Edificacion, Empresa
+from inmuebleslist_app.models import Edificacion, Empresa, Comentario
+
+
+class ComentarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comentario
+        exclude = ["edificaion"]
+        ##fields = "__all__"
 
 
 class EdificacionSerializer(serializers.ModelSerializer):
+    comentarios = ComentarioSerializer(many=True, read_only=True)
+
     class Meta:
         model = Edificacion
         fields = "__all__"
 
 
-class EmpresaSerializer(serializers.ModelSerializer):
+class EmpresaSerializer(serializers.HyperlinkedModelSerializer):
     edificacionList = EdificacionSerializer(many=True, read_only=True)
+    # todos los valores
 
+    # edificacionList = serializers.StringRelatedField(
+    #     many=True,
+    # ) solo el metodo string del modelo
+    # edificacionList = serializers.PrimaryKeyRelatedField(many=True, read_only=True) solo id
+    # edificacionList = serializers.HyperlinkedIdentityField(
+    #     many=True,
+    #     read_only=True,
+    #     view_name="inmueble-detalle",
+    # )
     class Meta:
         model = Empresa
         fields = "__all__"
